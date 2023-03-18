@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>模拟APP扫描登陆</title>
+</head>
+<body>
+    <div>
+        <h3>APP登陆</h3>
+        用户名：<input id="userName" type="text" /><br />
+        密&nbsp;&nbsp;&nbsp;码：<input id="password" type="password" />
+        <input type="button" value="登陆" onclick="login()" />
+        <p id="token"></p>
+        <hr />
+        <h3>APP扫描登陆</h3>
+        <input type="button" id="btnCode" value="获取二维码" onclick="getQrCode()" />
+        <input id="qrCode" type="text" style="width: 250px" readonly="readonly" />
+        <input id="scan" type="button" value="开始扫描登陆" onclick="scanLogin()" />
+        <p id="codeDesc" style="display: none">WEB端二维码状态：未扫描</p>
+    </div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/signalr.min.js"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/loginHub").build();
+
+    $("#btnCode").attr("disabled", true);
+    $("#scan").attr("disabled", true);
+
+    connection.start().then(function () {
+        $("#btnCode").attr("disabled", false);
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    //获取扫描状态和token
+    connection.on("GetScanState", function (state, token) {
+        if (state == 1) {
+            $("#codeDesc").html("WEB端二维码状态：扫描成功，并获取到APP端Token：" + token);
+        }
+    });
+
+    function login() {
+        var userName = $("#userName").val();
+        var password = $("#password").val();
+        var loginUser = {
+            "userName": userName,
+            "password": password
+        };
+        $.ajax({
+            url: "/api/auth/login",
+            contentType: "application/json",
+            type: "POST",
+            data: JSON.stringify(loginUser),
+            success: function (res) {
+                $("#token").html("APP登陆成功，token是：" + res);
+                sessionStorage.setItem("token", res);
+            },
+            error: function (res, type, e) {
+                alert(res.responseText);
+            }
+        })
+    }
+
+    function getQrCode() {
+        var token = sessionStorage.getItem("token");
+        if (!token) {
+            alert("未登录");
+            return false;
+        }
+        $.ajax({
+            url: "/api/auth/getQrCode",
+            contentType: "application/json",
+            type: "GET",
+            headers: {
+                "token": token
+            },
+            success: function (res) {
+                $("#qrCode").val(res);
+                $("#codeDesc").css("display", "block");
+                $("#scan").attr("disabled", false);
+                connection.invoke("Send", res).catch(function (err) {
+                    return console.error(err.toString());
+                });
+            },
+            error: function (res, type, e) {
+                alert(res.responseText);
+            }
+        })
+    }
+
+    function scanLogin() {
+        var qrCode = $("#qrCode").val();
+        var token = sessionStorage.getItem("token");
+        $.ajax({
+            url: "/api/auth/scanLogin?clientId=" + qrCode,
+            contentType: "application/json",
+            type: "GET",
+            headers: {
+                "token": token
+            },
+            success: function (res) {
+                alert("APP端扫描登陆成功");
+            },
+            error: function (res, type, e) {
+                alert(res.responseText);
+            }
+        })
+    }
+</script>
+</html>

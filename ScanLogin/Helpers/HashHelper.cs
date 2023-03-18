@@ -7,9 +7,9 @@ namespace ScanLogin.Helpers
     {
         public static string GetMd5(string text)
         {
-            byte[] buffer = Encoding.UTF8.GetBytes(text);
-            byte[] bs = MD5.HashData(buffer);
-            return BitConverter.ToString(bs).Replace("-", "");
+            var buffer = Encoding.UTF8.GetBytes(text);
+            var bs = MD5.HashData(buffer);
+            return BitConverter.ToString(bs).Replace("-", "").ToLower();
         }
     }
 }

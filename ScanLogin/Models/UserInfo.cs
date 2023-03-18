@@ -4,6 +4,6 @@
     {
         public string UserId { get; set; }
 
-        public int ValidTtime { get; set; }
+        public long ExpireTime { get; set; }
     }
 }

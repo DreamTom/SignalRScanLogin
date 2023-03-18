@@ -13,26 +13,32 @@ namespace ScanLogin.Helpers
 
     public class ECHelper
     {
-        public UserInfo DecryptToken(string token, SignConfig config)
+        public static UserInfo DecryptToken(string token, SignConfig config)
         {
-            var paylod = token.Split('_')[0];
-            var realToken = HashHelper.GetMd5(paylod + config.SecretKey);
-            if (realToken == token)
-            {
-                byte[] bs = Convert.FromBase64String(realToken);
-                string text = Encoding.UTF8.GetString(bs);
-                return JsonSerializer.Deserialize<UserInfo>(text);
-            }
-            else
-                return null;
+            var payloads = token.Split('.');
+
+            if (payloads.Length != 2)
+                throw new ArgumentException("token不合法");
+
+            var realSign = HashHelper.GetMd5(payloads[0] + config.SecretKey);
+            var sign = payloads[1];
+            if (realSign != sign) throw new ArgumentException("token不合法");
+
+            var bs = Convert.FromBase64String(payloads[0]);
+            var text = Encoding.UTF8.GetString(bs);
+            var user = JsonSerializer.Deserialize<UserInfo>(text);
+            var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            if (user.ExpireTime <= timestamp)
+                throw new ArgumentException("token已过期");
+            return user;
         }
 
-        public string IssueToken(UserInfo userInfo, SignConfig config)
+        public static string IssueToken(UserInfo userInfo, SignConfig config)
         {
-            string text = JsonSerializer.Serialize(userInfo);
+            var text = JsonSerializer.Serialize(userInfo);
             var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
             var sign = HashHelper.GetMd5(payload + config.SecretKey);
-            return payload + "_" + sign;
+            return payload + "." + sign;
         }
     }
 }
