@@ -15,7 +15,7 @@
 
   本案例为了操作方便，并没有操作db，直接硬编码了一个账号:admin  密码:123456 来模拟用户登录流程，正式环境可以用jwt来做认证，我这里自己简单实现了一个认证方式可供参考。
 
-  项目启动后，使用浏览器打开http://localhost:5196/app.html和http://localhost:5196/web.html分别来模拟app和web的登录，先在APP端输入账号密码登录，然后到web端生成二维码，复制到APP端扫码就可以看到扫码登录效果啦~
+  项目启动后，使用浏览器打开`http://localhost:5196/app.html`和`http://localhost:5196/web.html`分别来模拟app和web的登录，先在APP端输入账号密码登录，然后到web端生成二维码，复制到APP端扫码就可以看到扫码登录效果啦~
 
 ### 4. 总结
 
