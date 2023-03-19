@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>WEB端扫码登陆</title>
+</head>
+<body>
+    <div>
+        <h3>WEB端扫码登录</h3>
+        <input type="button" id="btnCode" value="获取二维码" onclick="getQrCode()" />
+        <input id="qrCode" type="text" style="width: 250px" readonly="readonly" />
+        <p id="codeDesc" style="display: none">WEB端二维码状态：未扫描</p>
+        <p>备注：复制二维码到APP端扫描登录</p>
+    </div>
+</body>
+</html>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/signalr.min.js"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/loginHub").build();
+
+    $("#btnCode").attr("disabled", true);
+
+    connection.start().then(function () {
+        $("#btnCode").attr("disabled", false);
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    //获取扫描状态和token
+    connection.on("GetScanState", function (state, token) {
+        if (state == 1) {
+            $("#codeDesc").html("WEB端二维码状态：扫描成功，并获取到APP端Token：" + token);
+        }
+    });
+
+
+    function getQrCode() {
+        $.ajax({
+            url: "/api/auth/getQrCode",
+            contentType: "application/json",
+            type: "GET",
+            success: function (res) {
+                $("#qrCode").val(res);
+                $("#codeDesc").css("display", "block");
+                connection.invoke("Send", res).catch(function (err) {
+                    return console.error(err.toString());
+                });
+            },
+            error: function (res, type, e) {
+                alert(res.responseText);
+            }
+        })
+    }
+</script>

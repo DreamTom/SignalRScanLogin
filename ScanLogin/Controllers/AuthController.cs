@@ -50,6 +50,7 @@ namespace ScanLogin.Controllers
         /// 模拟生成二维码
         /// </summary>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("getQrCode")]
         public ActionResult<string> GetQrCode()
         {
@@ -66,6 +67,8 @@ namespace ScanLogin.Controllers
         public async Task<ActionResult> ScanLogin(string clientId)
         {
             var connId = _memoryCache.Get<string>(clientId);
+            if (string.IsNullOrWhiteSpace(connId))
+                return BadRequest("无效的二维码");
             await _hubContext.Clients.Client(connId).SendAsync("GetScanState", (int)ScanState.HasScanned, Token);
             return Ok();
         }

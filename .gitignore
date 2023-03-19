@@ -35,7 +35,3 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
-/IntAss.App/uploads
-/src/SolvePay.Api/appsettings.Development.json
-/src/SolvePay.Api/appsettings2.json
-/src/SolvePay.Api/appsettings.json
