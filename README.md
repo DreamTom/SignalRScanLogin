@@ -3,10 +3,10 @@
 
 在移动化时代，web开发很多时候都会带着移动端开发，这个时候为了减少重复输入账号密码以及安全性，很多APP端都会提供一个扫码登录功能，web端生成二维码，APP扫码直接登录web端，无需再次输入账号密码。
 
-### 2. 实现流程图
+### 2. 实现流程图及效果图
 
 ![](https://github.com/DreamTom/SignalRScanLogin/blob/main/%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
-
+![](https://github.com/DreamTom/SignalRScanLogin/blob/main/%E6%95%88%E6%9E%9C%E5%9B%BE.gif)
 ### 3. 代码运行环境
 
 - ASP.NET CORE 7.0
